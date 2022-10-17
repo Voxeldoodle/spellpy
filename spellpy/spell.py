@@ -267,22 +267,24 @@ class LogParser(pickle.Unpickler):
         return df_log
 
     def parseFile(self, file, persistence=True):
-        self.starttime = datetime.now()
+        starttime = datetime.now()
         filepath = os.path.join(self.path, file)
         logging.info('Parsing file: ' + filepath)
         self.logname = file
         with open(filepath, 'r') as f:
             self.df_log = self.log_to_dataframe(f)
             # self.df_log = self.log_to_dataframe(f.readlines())
-        logging.info('log_to_dataframe() finished!')
+        # logging.info('log_to_dataframe() finished!')
+        logging.info('Pre-processing done. [Time taken: {!s}]'.format(datetime.now() - starttime))
         return self.parse(persistence)
 
     def parseLines(self, lines, persistence=True):
         self.logname = self.logmain
-        self.starttime = datetime.now()
+        starttime = datetime.now()
         logging.info(f'Parsing {len(lines)} lines')
         self.df_log = self.log_to_dataframe(lines)
-        logging.info('log_to_dataframe() finished!')
+        # logging.info('log_to_dataframe() finished!')
+        logging.info('Pre-processing done. [Time taken: {!s}]'.format(datetime.now() - starttime))
         return self.parse(persistence)
 
     def parse(self, persistence=True):
@@ -290,6 +292,8 @@ class LogParser(pickle.Unpickler):
         Function used to parse self.df_log, which is set by either parseFile() or parseLines().
         If you want to call this function manually you can call log_to_dataframe() to obtain the df and then set it with setDataframe().
         '''
+        starttime = datetime.now()
+
         self.df_log['LineId'] = self.df_log['LineId'].apply(lambda x: x + self.lastestLineId)
 
         count = 0
@@ -347,7 +351,7 @@ class LogParser(pickle.Unpickler):
             pickle.dump(self.logCluL, output, pickle.HIGHEST_PROTOCOL)
         logging.info('Store objects done.')
 
-        logging.info('Parsing done. [Time taken: {!s}]'.format(datetime.now() - self.starttime))
+        logging.info('Parsing done. [Time taken: {!s}]'.format(datetime.now() - starttime))
 
         return self.df_log
 
