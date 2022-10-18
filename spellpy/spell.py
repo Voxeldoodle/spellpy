@@ -80,7 +80,7 @@ class LogParser(pickle.Unpickler):
             with open(logCluLPath, 'rb') as f:
                 self.logCluL = CustomUnpickler(f).load()
             self.lastestLineId = 0
-            self.resetIDs()
+            self.setLatestLineId()
             logging.info(f'Load objects done, lastestLineId: {self.lastestLineId}')
         else:
             self.rootNode = Node()
@@ -90,10 +90,11 @@ class LogParser(pickle.Unpickler):
     def setDataframe(self, df):
         self.df_log = df
 
-    def resetIDs():
+    def setLatestLineId(self):
         for logclust in self.logCluL:
-            if max(logclust.logIDL) > self.lastestLineId:
-                self.lastestLineId = max(logclust.logIDL)
+            Max = max(logclust.logIDL)
+            if Max > self.lastestLineId:
+                self.lastestLineId = Max
 
     def LCS(self, seq1, seq2):
         lengths = [[0 for j in range(len(seq2)+1)] for i in range(len(seq1)+1)]
@@ -296,7 +297,7 @@ class LogParser(pickle.Unpickler):
         If you want to call this function manually you can call log_to_dataframe() to obtain the df and then set it with setDataframe().
         '''
 
-        self.resetIDs()
+        self.setLatestLineId()
 
         starttime = datetime.now()
 
@@ -440,8 +441,9 @@ class LogParser(pickle.Unpickler):
             for logid in logclust.logIDL:
                 if logid <= lastestLineId:
                     continue
-                templates[logid - lastestLineId - 1] = template_str
-                ids[logid - lastestLineId - 1] = eid
+                idx = logid - lastestLineId - 1
+                templates[idx] = template_str
+                ids[idx] = eid
             df_event.append([eid, template_str, len(logclust.logIDL)])
 
         df_event = pd.DataFrame(df_event, columns=['EventId', 'EventTemplate', 'Occurrences'])
