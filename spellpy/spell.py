@@ -458,10 +458,10 @@ class LogParser(pickle.Unpickler):
         df_log_append.to_csv(main_structured_path, index=False)
         df_event.to_csv(os.path.join(self.savePath, self.logmain + '_main_templates.csv'), index=False)
 
-    def _parameter_handler(self, signum, frame):
+    def _parameter_handler(self):
         logging.error("_get_parameter_list function is hangs!")
         raise Exception("TIME OUT!")
 
-    def _log_to_dataframe_handler(self, signum, frame):
+    def _log_to_dataframe_handler(self):
         logging.error('log_to_dataframe function is hangs')
         raise Exception("TIME OUT!")
