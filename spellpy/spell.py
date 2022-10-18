@@ -80,9 +80,7 @@ class LogParser(pickle.Unpickler):
             with open(logCluLPath, 'rb') as f:
                 self.logCluL = CustomUnpickler(f).load()
             self.lastestLineId = 0
-            for logclust in self.logCluL:
-                if max(logclust.logIDL) > self.lastestLineId:
-                    self.lastestLineId = max(logclust.logIDL)
+            self.resetIDs()
             logging.info(f'Load objects done, lastestLineId: {self.lastestLineId}')
         else:
             self.rootNode = Node()
@@ -91,6 +89,11 @@ class LogParser(pickle.Unpickler):
 
     def setDataframe(self, df):
         self.df_log = df
+
+    def resetIDs():
+        for logclust in self.logCluL:
+            if max(logclust.logIDL) > self.lastestLineId:
+                self.lastestLineId = max(logclust.logIDL)
 
     def LCS(self, seq1, seq2):
         lengths = [[0 for j in range(len(seq2)+1)] for i in range(len(seq1)+1)]
@@ -272,8 +275,8 @@ class LogParser(pickle.Unpickler):
         logging.info('Parsing file: ' + filepath)
         self.logname = file
         with open(filepath, 'r') as f:
-            self.df_log = self.log_to_dataframe(f)
-            # self.df_log = self.log_to_dataframe(f.readlines())
+            # self.df_log = self.log_to_dataframe(f)
+            self.df_log = self.log_to_dataframe(f.readlines())
         # logging.info('log_to_dataframe() finished!')
         logging.info('Pre-processing done. [Time taken: {!s}]'.format(datetime.now() - starttime))
         return self.parse(persistence)
@@ -292,6 +295,9 @@ class LogParser(pickle.Unpickler):
         Function used to parse self.df_log, which is set by either parseFile() or parseLines().
         If you want to call this function manually you can call log_to_dataframe() to obtain the df and then set it with setDataframe().
         '''
+
+        self.resetIDs()
+
         starttime = datetime.now()
 
         self.df_log['LineId'] = self.df_log['LineId'].apply(lambda x: x + self.lastestLineId)
